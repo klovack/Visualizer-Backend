@@ -2,9 +2,12 @@
 
 import datetime as dt
 
+from marshmallow.exceptions import ValidationError
+
 from .. import db
 from ..models.journey import Journey
 from ..models.vendor import Vendor
+from ..models import data_refresh_db_input_schema
 from .mock.tours import get_tours_data
 
 
@@ -59,6 +62,43 @@ def populate_database(refresh=False):
     db.session.commit()
     print('finish populating')
 
+
 def convert_to_datetime(pickup_date, pickup_time):
     """ Convert string of date and time to datetime object """
     return dt.datetime.strptime(f'{pickup_date} {pickup_time}', "%Y-%m-%d %H:%M:%S")
+
+
+def refresh_db(request_json=None):
+    """ 
+    Use this function to clean up the database, 
+    in case the data in database is not correctly shown. 
+    """
+    if request_json is None:
+        return {'message': 'no request json'}
+
+    try:
+        data = data_refresh_db_input_schema.load(request_json).get('data')
+    except ValidationError:
+        return {'message': 'invalid data'}
+
+    if data is None:
+        return {'message': 'Please provide data and token to access this endpoint'}
+
+    token = data.get('token')
+    is_wiped = data.get('isWiped')
+
+    if token is None:
+        return {'message': 'Unauthorized'}
+
+    # Check for invalid token
+    # is_token_invalid(token)
+
+    if is_wiped is None:
+        populate_database()
+    else:
+        populate_database(is_wiped)
+
+    return {
+        'message': 'Database is refreshed',
+        'isWiped': is_wiped
+    }

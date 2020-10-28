@@ -1,3 +1,5 @@
+""" Package which contains all model for visualizer app """
+
 from marshmallow import fields
 from .. import marshmallow
 
