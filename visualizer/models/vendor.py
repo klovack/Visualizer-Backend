@@ -13,6 +13,9 @@ class Vendor(db.Model):
     name = db.Column(db.String(), unique=True, nullable=False)
     journeys = db.relationship('Journey', backref='vendor', lazy=True)
 
+    def __init__(self, name=None):
+        self.name = name
+
     def save(self):
         """ Shorthand function to save the instance """
         db.session.add(self)
