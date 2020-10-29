@@ -4,13 +4,15 @@ Class for journey model
 
 from .. import db, marshmallow
 
+
 class Journey(db.Model):
     """
     Journey represents the pickup and dropoff location. It also has other helper properties
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    vendor_id = db.Column(db.Integer, db.ForeignKey('vendor.id'), nullable=False)
+    vendor_id = db.Column(db.Integer, db.ForeignKey(
+        'vendor.id'), nullable=False)
 
     passenger_count = db.Column(db.Integer, nullable=False)
     pickup_latitude = db.Column(db.Float)
@@ -81,13 +83,15 @@ class Journey(db.Model):
             f"{self.dropoff_time}. {self.distance}/{self.total_fare_amount}')")
 
 
-class JourneySchema(marshmallow.SQLAlchemyAutoSchema):
+class JourneySchema(marshmallow.Schema):
     """ Journey marshmallow schema """
     class Meta:
         """ A meta description for marshmallow integration """
-        model = Journey
-        include_fk = True
-
+        fields = ('vendor_id', 'id', 'passenger_count',
+                  'pickup_latitude', 'pickup_longitude',
+                  'dropoff_latitude', 'dropoff_longitude',
+                  'total_fare_amount', 'pickup_time', 'dropoff_time',
+                  'distance')
 
 journey_schema = JourneySchema()
 journeys_schema = JourneySchema(many=True)

@@ -28,6 +28,7 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
+    marshmallow.init_app(app)
 
     from .routes import api_blueprint
     app.register_blueprint(api_blueprint)
