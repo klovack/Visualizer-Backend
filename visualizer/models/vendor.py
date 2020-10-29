@@ -54,7 +54,6 @@ class VendorSchema(marshmallow.SQLAlchemySchema):
 
     id = marshmallow.auto_field()
     name = marshmallow.auto_field()
-    journeys = marshmallow.auto_field()
 
 
 vendor_schema = VendorSchema()

@@ -2,9 +2,9 @@
 
 from marshmallow.exceptions import ValidationError
 from sqlalchemy import or_, text
-from sqlalchemy.exc import SQLAlchemyError
 
 from ..models.journey import Journey, journey_schema
+from ..models.vendor import Vendor, vendor_schema
 from ..models.statistic import convert_multi_dict_to_statistic_param
 
 
@@ -48,11 +48,42 @@ def get_statistics(query_param):
         journeys_json = journey_schema.dump(res, many=True)
 
         return {
-            'data': {
-                'journeys': journeys_json
+            'journeys': journeys_json
+        }
+    except ValidationError as err:
+        return {
+            'error': {
+                'code': 400,
+                'message': err.messages
             }
         }
-    except (ValidationError, SQLAlchemyError) as err:
+
+
+def get_vendors():
+    try:
+        res = Vendor.get_all()
+        vendor_json = vendor_schema.dump(res, many=True)
+
+        return {
+            'vendors': vendor_json
+        }
+    except ValidationError as err:
+        return {
+            'error': {
+                'code': 400,
+                'message': err.messages
+            }
+        }
+
+def get_vendor(id):
+    try:
+        res = Vendor.get_one(id)
+        vendor_json = vendor_schema.dump(res)
+
+        return {
+            'vendor': vendor_json
+        }
+    except ValidationError as err:
         return {
             'error': {
                 'code': 400,
