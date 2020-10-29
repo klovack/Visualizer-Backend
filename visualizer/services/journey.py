@@ -1,12 +1,15 @@
 """ A services to populate the journey in the database """
 
 import datetime as dt
+import requests
 
+from flask import current_app
 from marshmallow.exceptions import ValidationError
 
 from .. import db
 from ..models.journey import Journey
 from ..models.vendor import Vendor
+from ..models.mapquest import response_body_schema
 from ..models import data_refresh_db_input_schema
 from .mock.tours import get_tours_data
 
@@ -58,7 +61,14 @@ def populate_database(refresh=False):
         )
         journey_obj_list.append(new_journey)
 
-    db.session.bulk_save_objects(journey_obj_list)
+    mapquest_limit = current_app.config['MAPQUEST_LIMIT_REQUEST']
+    if mapquest_limit is not None:
+        journeys = assign_distance(journey_obj_list, limit=mapquest_limit)
+    else:
+        journeys = assign_distance(journey_obj_list)
+
+    db.session.bulk_save_objects(journeys)
+
     db.session.commit()
     print('finish populating')
 
@@ -69,9 +79,9 @@ def convert_to_datetime(pickup_date, pickup_time):
 
 
 def refresh_db(request_json=None):
-    """ 
-    Use this function to clean up the database, 
-    in case the data in database is not correctly shown. 
+    """
+    Use this function to clean up the database,
+    in case the data in database is not correctly shown.
     """
     if request_json is None:
         return {'message': 'no request json'}
@@ -102,3 +112,94 @@ def refresh_db(request_json=None):
         'message': 'Database is refreshed',
         'isWiped': is_wiped
     }
+
+
+def assign_distance(journey_list, limit=30, max_request=None):
+    """ Accept list of journeys without distance and return the list with distance """
+    print(f'Assign distance for {len(journey_list)} journey(s)')
+    if journey_list is None:
+        return journey_list
+
+    # List to contain the return value, a counter to know the limit
+    # through length of wait group list
+    journey_distance_list = []
+    journey_wait_group = []
+
+    for i, journey in enumerate(journey_list):
+        # Ignore 0 value because it means the data is invalid
+        # but still add it into return list
+        if (journey.distance is not None
+            or journey.pickup_latitude == 0
+            or journey.pickup_longitude == 0
+            or journey.dropoff_latitude == 0
+                or journey.dropoff_longitude == 0):
+            journey_distance_list.append(journey)
+            continue
+
+        journey_wait_group.append(journey)
+
+        # Call to calculate the distance
+        # when the wait group is already over the limit
+        # or it reaches the last index
+        if len(journey_wait_group) >= limit or i == len(journey_list) - 1:
+            # make request to get the distance
+            distance = make_request_distance(journey_wait_group)
+            for journey_with_distance in distance:
+                journey_distance_list.append(journey_with_distance)
+            journey_wait_group.clear()
+
+    return journey_distance_list
+
+
+def make_request_distance(journey_list):
+    """
+    Get the dropoff and pickup location from each journey in journey list
+    and then pass it as locations in the request body to get the distance
+    """
+    print(f'Making journey request for {len(journey_list)}')
+    location_list = []
+    for journey in journey_list:
+        pickup_location = {
+            'latLng': {
+                'lat': journey.pickup_latitude,
+                'lng': journey.pickup_longitude
+            }
+        }
+        dropoff_location = {
+            'latLng': {
+                'lat': journey.dropoff_latitude,
+                'lng': journey.dropoff_longitude
+            }
+        }
+        location_list.append(pickup_location)
+        location_list.append(dropoff_location)
+
+    # Get the api key from config
+    # and if it's none, don't bother make request
+    api_key = current_app.config['MAPQUEST_API_KEY']
+    if api_key is None:
+        return journey_list
+
+    payload = {'key': api_key}
+    body = {'locations': location_list, 'options': 'k'}
+    req = requests.post('http://www.mapquestapi.com/directions/v2/route',
+                        json=body, params=payload)
+
+    # validate the response using schema
+    try:
+        response_body = response_body_schema.dump(req.json())
+    except ValidationError:
+        print(f'Fail to get distance for {len(journey_list)} of journey(s)')
+        return journey_list
+
+    legs = response_body.get('route').get('legs')
+
+    if legs is None:
+        return journey_list
+
+    for i, leg in enumerate(legs):
+        if i % 2 == 0:
+            journey_list[int(i/2)].distance = float(leg.get('distance'))
+            print(f"{journey_list[int(i/2)]} is updated")
+
+    return journey_list
