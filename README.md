@@ -16,14 +16,24 @@ Service we'll be using is [MapQuest](https://developer.mapquest.com/).
 
     Should return `json` object which shows all statistics of the journey incl. distance and fares
 
-2. `GET` __/statistics/fares__
+2. `GET` __/api/statistics/vendors/:id__
 
-    Should return `json` object which shows statistics of fares
+    Should either return 1 vendor or all vendors if call without id
 
-3. `GET` __/statistics/distances__
-
-    Should return `json` object which shows statistics of distance
-
-4. `POST` __/auth__
+3. `POST` __/auth__
 
     Should authenticate the user over oAuth and return jwt token
+
+For more documentation, start the app by executing `run.sh`,
+just make sure, postgresql is running. You can do that by doing:
+
+```
+cd db
+docker-compose up -d
+```
+
+and then go to
+
+```
+http://localhost:5000/api/docs
+```
