@@ -2,6 +2,7 @@
 
 from marshmallow.exceptions import ValidationError
 from sqlalchemy import or_, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from ..models.journey import Journey, journey_schema
 from ..models.statistic import convert_multi_dict_to_statistic_param
@@ -28,7 +29,6 @@ def get_statistics(query_param):
             if sql_text is not None:
                 sql_query = sql_query.filter(sql_text)
 
-        
         # Filter by time start and time end
         if 'time_start' in queries and 'time_end' in queries:
             sql_text = text(
@@ -52,8 +52,10 @@ def get_statistics(query_param):
                 'journeys': journeys_json
             }
         }
-    except ValidationError as err:
+    except (ValidationError, SQLAlchemyError) as err:
         return {
-            'code': 400,
-            'message': err.messages
-        }, 400
+            'error': {
+                'code': 400,
+                'message': err.messages
+            }
+        }

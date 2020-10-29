@@ -33,4 +33,8 @@ class Statistics(Resource):
     @statistic_ns.param('limit', 'Limit of the data to be fetched')
     def get(self):
         """ GET Method returns the statistics of the application """
-        return get_statistics(request.args)
+        stat = get_statistics(request.args)
+        if 'error' in stat:
+            return stat, 400
+
+        return stat, 200
