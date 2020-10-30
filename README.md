@@ -37,3 +37,15 @@ and then go to
 ```
 http://localhost:5000/api/docs
 ```
+
+### NOTES
+
+If you run the application for the first time, you need to create the database first.
+To create the database, start the postgresql and then execute:
+
+```bash
+# you have to be at root application
+python setup.py
+```
+
+When running it for the first time, the database will be empty. To populate the database, start the application and then go to `localhost:5000/api/db/refresh-db`.

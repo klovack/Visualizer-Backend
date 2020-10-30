@@ -7,6 +7,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -29,6 +31,7 @@ def create_app(test_config=None):
 
     db.init_app(app)
     marshmallow.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     from .routes import api_blueprint
     app.register_blueprint(api_blueprint)
