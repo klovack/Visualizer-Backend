@@ -11,6 +11,7 @@ from ..models.statistic import convert_multi_dict_to_statistic_param
 def get_statistics(query_param):
     """ Get the statistic data from database based on the query param """
     try:
+        print(query_param)
         queries = convert_multi_dict_to_statistic_param(query_param)
 
         sql_query = Journey.query
@@ -42,9 +43,14 @@ def get_statistics(query_param):
             sql_text = text(f'''pickup_time <= '{queries.get("time_end")}' ''')
             sql_query = sql_query.filter(sql_text)
 
+
         # For debug purpose
         # print(sql_query)
-        res = sql_query.all()
+        if 'limit' in queries:
+            res = sql_query.limit(int(queries.get('limit')))
+        else:
+            res = sql_query.all()
+
         journeys_json = journey_schema.dump(res, many=True)
 
         return {
