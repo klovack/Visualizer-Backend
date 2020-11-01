@@ -25,12 +25,21 @@ Service we'll be using is [MapQuest](https://developer.mapquest.com/).
     Should authenticate the user over oAuth and return jwt token
 
 For more documentation, start the app by executing `run.sh`,
-just make sure, postgresql is running. You can do that by doing:
+just make sure, you do this steps:
 
-```
-cd db
-docker-compose up -d
-```
+1. Start python virtual env, you can do that by executing:
+
+    ```sh
+    py -m venv venv
+    pip install -r requirements.txt
+    ```
+
+2. postgresql is running. You can do that by doing:
+
+    ```
+    cd db
+    docker-compose up -d
+    ```
 
 and then go to
 
