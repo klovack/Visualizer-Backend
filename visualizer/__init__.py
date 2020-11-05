@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from dotenv import load_dotenv
 from authlib.integrations.flask_client import OAuth
 
 
@@ -27,6 +28,9 @@ oauth.register(
 
 def create_app(test_config=None):
     """ create and configure the flask app """
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
+
     app = Flask(__name__)
     app.config.from_mapping(
         SECRET_KEY='dev',
