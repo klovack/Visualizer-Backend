@@ -27,6 +27,12 @@ services:
       - pgadmin-database-data:/var/lib/pgadmin
     hostname: pgadmin4
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    hostname: redis
+
 networks:
   db-pg:
 

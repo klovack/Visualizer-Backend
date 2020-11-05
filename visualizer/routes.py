@@ -34,7 +34,7 @@ def login_required(f):
 
 @api_blueprint.route('/login')
 def login():
-    oauth_provider = request.args.get('oauth_provider');
+    oauth_provider = request.args.get('oauth_provider')
     if oauth_provider is None:
         redirect_uri = current_app.config['FRONTEND_URI']
         return redirect(redirect_uri)
