@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  visualizer:
+    build: .
+    ports:
+      - "5000:5000"
+    networks:
+      - db-pg
+    hostname: visualizer
+    depends_on:
+      - database
+      - redis
+
+  database:
+    image: postgres
+    env_file:
+      - .database.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-database-data:/var/lib/postgresql/data
+    networks:
+      - db-pg
+    hostname: postgres
+
+  pgadmin:
+    depends_on:
+      - database
+    image: dpage/pgadmin4:latest
+    ports:
+      - "5050:80"
+      - "5443:443"
+    env_file:
+      - .pgadmin.env
+    networks:
+      - db-pg
+    volumes:
+      - pgadmin-database-data:/var/lib/pgadmin
+    hostname: pgadmin4
+  
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    hostname: redis
+
+networks:
+  db-pg:
+
+volumes:
+  postgres-database-data:
+  pgadmin-database-data:

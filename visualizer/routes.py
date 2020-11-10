@@ -98,7 +98,7 @@ def me(user=None):
 
 @api_blueprint.route('/logout')
 @login_required
-def logout():
+def logout(user=None):
     redis_client.delete(request.headers['Authorization'])
     redirect_uri = current_app.config['FRONTEND_URI']
     return redirect(redirect_uri)
