@@ -11,12 +11,9 @@ from ..models.statistic import convert_multi_dict_to_statistic_param
 def get_statistics(query_param):
     """ Get the statistic data from database based on the query param """
     try:
-        print(query_param)
         queries = convert_multi_dict_to_statistic_param(query_param)
 
         sql_query = Journey.query
-
-        print(queries)
 
         # Filter by vendor id
         if 'vendor_ids' in queries:

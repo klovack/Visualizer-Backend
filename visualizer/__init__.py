@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from flask_redis import FlaskRedis
 from dotenv import load_dotenv
 from authlib.integrations.flask_client import OAuth
 
@@ -24,6 +25,7 @@ oauth.register(
         'scope': 'openid email profile'
     }
 )
+redis_client = FlaskRedis()
 
 
 def create_app(test_config=None):
@@ -45,8 +47,9 @@ def create_app(test_config=None):
 
     db.init_app(app)
     marshmallow.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, origins=app.config['ORIGINS'], supports_credentials=True)
     oauth.init_app(app)
+    redis_client.init_app(app)
 
     from .routes import api_blueprint
     app.register_blueprint(api_blueprint)
