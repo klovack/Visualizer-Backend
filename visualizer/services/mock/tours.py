@@ -10,7 +10,7 @@ def get_tours_data():
     filepath = path.join(
         path.dirname(path.realpath(__file__)), 'tours.csv')
 
-    with open(filepath, mode='r') as csvfile:
+    with open(filepath, mode='r', encoding='utf-8') as csvfile:
         csv_reader = DictReader(csvfile)
         list_of_rows = list(csv_reader)
         return list_of_rows

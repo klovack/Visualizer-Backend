@@ -108,7 +108,7 @@ def logout(user=None):
 class RefreshDB(Resource):
     """ An api to refresh the database """
 
-    @login_required
+    # @login_required
     def post(self):
         """ A post endpoint to refresh the database """
         return refresh_db(request_json=request.json)
