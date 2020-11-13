@@ -11,6 +11,8 @@ RUN pip3 install -r requirements.txt
 
 COPY visualizer /opt/visualizer/visualizer/
 
+RUN mkdir -p /var/log/gunicorn
+
 ENV PYTHONIOENCODING=utf-8
 
-CMD ["gunicorn3", "-b", "0.0.0.0:5000", "visualizer:create_app()", "--workers=5", "--env", "PYTHONIOENCODING=utf-8"]
+CMD ["gunicorn3", "-b", "0.0.0.0:5000", "visualizer:create_app()", "--workers=5", "--error-logfile", "/var/log/gunicorn/error.log", "--access-logfile", "/var/log/gunicorn/access.log", "--capture-output", "--log-level", "debug"]
