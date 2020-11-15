@@ -13,7 +13,7 @@ FRONTEND_URI='http://localhost:3000'
 # An API Key which you can get at
 # https://developer.mapquest.com
 MAPQUEST_API_KEY=os.getenv('MAPQUEST_API_KEY')
-MAPQUEST_LIMIT_REQUEST=30
+MAPQUEST_LIMIT_REQUEST=25
 
 GOOGLE_CLIENT_ID=os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET=os.getenv('GOOGLE_CLIENT_SECRET')
