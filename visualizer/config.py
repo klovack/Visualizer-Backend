@@ -6,7 +6,7 @@ import os
 SQLALCHEMY_DATABASE_URI='postgresql://postgres:my-secret-password@database:5432/visualizer-dev'
 SQLALCHEMY_TRACK_MODIFICATIONS=True
 
-REDIS_URL='redis://:@redis:6379/0'
+REDIS_URL='redis://redis:6379/0'
 
 FRONTEND_URI='http://localhost:3000'
 
