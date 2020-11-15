@@ -163,19 +163,17 @@ async def assign_distance(journey_list, limit=25, max_request=None):
             #     journey_distance_list.append(journey_with_distance)
 
     await asyncio.gather(*[run_request_distance(journey_wg_list) for journey_wg_list in journey_wait_group])
-        
-    # return journey_distance_list
+
+    db.session.commit()
+
 
 
 async def run_request_distance(journey_list):
     journey_with_distance = await make_request_distance(journey_list)
 
-    print(f'journey list {journey_list}')
-    print(f'journey with distance {journey_with_distance}')
-
     if len(journey_with_distance) > 0:
         db.session.bulk_save_objects(journey_with_distance)
-        db.session.commit()
+        
 
 
 async def make_request_distance(journey_list):
